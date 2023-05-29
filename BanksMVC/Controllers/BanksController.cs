@@ -58,7 +58,7 @@ namespace BanksMVC.Controllers
                 {
                     amountNum = CalculateAmount((int)Enum.Parse(typeof(Banks), bankName), amountNum);
                     Bank bank = await GetBankByName(bankName);
-                    if (bank is null)
+                    if (await GetBankByName(bankName) is null)
                         await DbLib.CreateBank(Guid.NewGuid(), bankName, 0);
                     decimal total = bank is null ? 0 : bank.Total;
                     total = Decimal.Add(amountNum, total);
@@ -125,6 +125,9 @@ namespace BanksMVC.Controllers
         {
             if (Enum.IsDefined(typeof(Banks), bankName))
             {
+                //Bank bank = await GetBankByName(bankName);
+                if (await GetBankByName(bankName) is null)
+                    await DbLib.CreateBank(Guid.NewGuid(), bankName, 0);
                 await DbLib.SetBankTotal(bankName, amount);
             }
             else
@@ -143,6 +146,9 @@ namespace BanksMVC.Controllers
         {
             if (Enum.IsDefined(typeof(Banks), bankName))
             {
+                //Bank bank = await GetBankByName(bankName);
+                if (await GetBankByName(bankName) is null)
+                    await DbLib.CreateBank(Guid.NewGuid(), bankName, 0);
                 await DbLib.SetBankTotal(bankName, 0);
                 return new JsonResult(new Dictionary<string, string>() {
                 {"message", $"Balance of {bankName} was reset"} });
