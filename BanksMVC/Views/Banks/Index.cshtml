@@ -1,0 +1,72 @@
+﻿@model IEnumerable<BanksMVC.Models.Bank>
+
+@{
+    Layout = "_Layout";
+}
+
+<style>
+    p {
+        margin-bottom: 0;
+    }
+</style>
+
+<p margin=0> Валюта </p>
+<input type="number" value="100" id="amount" onchange="amountChange()"/>
+<p> Банки </p>
+<select name="bankName" class="form-control" id="bankSelect"></select>
+<input type="button" onclick="submitBank()" value="Отправить" id="submitButton"/>
+
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetBankNames")",
+                dataType: "json",
+                success: function (result) {
+                    var s = '';
+                    for (var bank in result) {
+                        s += '<option value="' + bank + '">' + result[bank] + '</option>';
+                    }
+                    $("#bankSelect").html(s);
+                },
+                error: function (req, status, error) {
+                    console.log(status);
+                }
+            });
+        }) 
+
+        function submitBank() {
+            var amount = document.getElementById("amount").value;
+            if (isNaN(amount)) {
+                console.log("Amount is NaN!");
+            } else {
+                var bankName = document.getElementById("bankSelect").value;
+                var postData = { "bankName": bankName, "amount": amount }
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("Create")",
+                    data: postData,
+                    dataType: "json",
+                    success: function (result) {
+                        console.log(result["message"]);
+                    },
+                    error: function (req, status, error) {
+                        console.log(status);
+                    }
+                });
+            }
+        }
+
+        function amountChange() {
+            var amount = document.getElementById("amount").value;
+            var submitButton = document.getElementById("submitButton");
+            if (isNaN(amount) || amount === "") {
+                submitButton.disabled = true;
+            } else {
+                submitButton.disabled = false;
+            }
+        }
+    </script>
+}
